@@ -49,17 +49,16 @@ public partial class MainWindow : Window
         SetupEventHandlers();
         SetupPosition();
 
-        // Handle WM_SETTINGCHANGE for theme + apply WS_EX_NOACTIVATE
+        // Handle WM_SETTINGCHANGE for theme + conditionally apply WS_EX_NOACTIVATE
         SourceInitialized += (s, e) =>
         {
             var hwnd = new WindowInteropHelper(this).Handle;
             var source = HwndSource.FromHwnd(hwnd);
             source?.AddHook(ThemeWndProc);
 
-            // Prevent overlay from ever stealing focus when clicked
-            int exStyle = NativeMethods.GetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE);
-            NativeMethods.SetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE,
-                exStyle | NativeMethods.WS_EX_NOACTIVATE);
+            // Only prevent focus-steal when overlay is pinned on top
+            if (_settingsService.Settings.AlwaysOnTop)
+                ApplyNoActivate(hwnd, true);
         };
     }
 
@@ -410,10 +409,22 @@ public partial class MainWindow : Window
         OverlayContextMenu.IsOpen = true;
     }
 
+    private void ApplyNoActivate(IntPtr hwnd, bool enable)
+    {
+        int exStyle = NativeMethods.GetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE);
+        if (enable)
+            exStyle |= NativeMethods.WS_EX_NOACTIVATE;
+        else
+            exStyle &= ~NativeMethods.WS_EX_NOACTIVATE;
+        NativeMethods.SetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE, exStyle);
+    }
+
     // Context menu
     private void PinMenuItem_Click(object sender, RoutedEventArgs e)
     {
         Topmost = !Topmost;
+        var hwnd = new WindowInteropHelper(this).Handle;
+        ApplyNoActivate(hwnd, Topmost);
         _settingsService.Settings.AlwaysOnTop = Topmost;
         _settingsService.Save();
         UpdatePinMenuItem();
