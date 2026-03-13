@@ -182,6 +182,18 @@ WinAiRecorder/
 
 ---
 
+## Known issues
+
+| Issue | Workaround |
+|---|---|
+| **Text pasted to wrong window after using "Start with Windows"** | Press the hotkey once to show the overlay, then switch to the app you want to dictate in, then press the hotkey again to start recording. The first hotkey press after startup pins the target window. |
+| **Always on Top not active after restart** | Open the right-click menu and toggle "Pin (Always on top)" off and back on once. Only needed if the setting didn't apply on first launch. |
+| **Text goes nowhere when overlay was hidden in tray** | If focus is lost, use the hotkey (not the button) to start recording — it restores focus to the target app automatically. |
+
+These are focus/activation edge cases caused by Windows restrictions on which processes can change the foreground window. Active work in progress.
+
+---
+
 ## Troubleshooting
 
 | Problem | Solution |
