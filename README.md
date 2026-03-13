@@ -1,4 +1,4 @@
-# VoiceType
+# Win AI Recorder
 
 Dictation overlay for Windows. Press a global hotkey, speak, and the transcribed text gets typed into whatever app has focus — no copy-paste needed.
 
@@ -15,19 +15,17 @@ The overlay is a small floating button that lives in a corner of your screen. It
 | Requirement | Version |
 |---|---|
 | Windows | 10 / 11 (x64) |
-| .NET SDK | 8.0+ |
+| .NET SDK | 8.0+ (build only) |
 | OpenAI API key | Any account with audio transcription access |
-
-Install the .NET 8 SDK from: https://dotnet.microsoft.com/download/dotnet/8
 
 ## Build
 
 ```powershell
-cd C:\devops\WinAIrecorder\VoiceType
+cd C:\devops\WinAIrecorder\WinAiRecorder
 dotnet build
 ```
 
-Build output goes to `bin\Debug\net8.0-windows\`.
+Build output goes to `bin\Debug\net8.0-windows\win-x64\`.
 
 ### Run directly
 
@@ -38,23 +36,22 @@ dotnet run
 ### Publish as single self-contained EXE
 
 ```powershell
-dotnet publish -c Release -r win-x64
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ..\publish
 ```
 
-Output: `bin\Release\net8.0-windows\win-x64\publish\VoiceType.exe`
+Output: `publish\WinAiRecorder.exe`
 
-> The published EXE (~150 MB) is fully self-contained — no .NET installation required on the target machine.
+> The published EXE (~155 MB) is fully self-contained — no .NET installation required on the target machine.
 
 ## Setup
 
 ### 1. Set your OpenAI API key
 
-Option A — via Settings window (recommended):
-- Launch VoiceType → right-click the overlay → **Settings…**
-- Paste your key in the API Key field → **Save**
+- Launch Win AI Recorder → right-click the overlay → **Settings…**
+- Paste your key in the API Key field → click **✓ Validar** to test it → **Guardar**
 - The key is stored as a user-level environment variable (`OPENAI_API_KEY`)
 
-Option B — set the variable manually before launching:
+Or set it manually:
 
 ```powershell
 [System.Environment]::SetEnvironmentVariable("OPENAI_API_KEY", "sk-...", "User")
@@ -62,7 +59,7 @@ Option B — set the variable manually before launching:
 
 ### 2. First run
 
-On first launch (no key configured), the Settings window opens automatically.
+On first launch without a key configured, recording is blocked. The Settings window opens automatically when you try to record.
 
 ## Usage
 
@@ -80,14 +77,14 @@ On first launch (no key configured), the Settings window opens automatically.
 | Icon | Meaning |
 |---|---|
 | Blue mic | Idle — ready to record |
-| Red mic (pulsing) + level bar | Recording |
+| Red mic (pulsing) + sine waveform | Recording — waveform amplitude reflects volume |
 | Spinning arc | Processing (sending to API) |
 | Green checkmark (fades) | Done — text typed |
 | Orange triangle | Error — hover for details, auto-clears in 5 s |
 
 ### Transcription models
 
-Configured in Settings. Defaults to `gpt-4o-mini-transcribe` (fastest/cheapest). Available models are fetched live from the API; fallback list used if no key is set:
+Configured in Settings. Defaults to `gpt-4o-mini-transcribe` (fastest/cheapest). Available models are fetched live from the API when a valid key is entered.
 
 - `gpt-4o-mini-transcribe` ⭐ recommended
 - `gpt-4o-transcribe`
@@ -102,7 +99,7 @@ Hard limit: **10 minutes**. The overlay flashes at 9 minutes as a warning, then 
 Settings are saved to:
 
 ```
-%AppData%\VoiceType\settings.json
+%AppData%\WinAiRecorder\settings.json
 ```
 
 | Field | Default | Description |
@@ -110,33 +107,34 @@ Settings are saved to:
 | `Model` | `gpt-4o-mini-transcribe` | Transcription model |
 | `Hotkey` | `Ctrl+Shift+Space` | Global hotkey |
 | `UseClipboardFallback` | `false` | Also copy to clipboard (for apps that block SendInput) |
-| `AutoStart` | `false` | Launch with Windows |
-| `AlwaysOnTop` | `false` | Overlay always on top |
+| `AutoStart` | `no` | `no`, `yes`, or `minimized` (start hidden in system tray) |
+| `AlwaysOnTop` | `true` | Overlay always on top |
 | `Theme` | `auto` | `dark`, `light`, or `auto` (follows Windows setting) |
 
 ## Pasting behaviour
 
-By default VoiceType uses `SendInput` with Unicode key events — text appears exactly where the cursor is in any app without touching your clipboard.
+By default Win AI Recorder uses `SendInput` with Unicode key events — text appears exactly where the cursor is in any app without touching your clipboard.
 
-If you enable **"Also copy to clipboard as fallback"** in Settings, VoiceType additionally puts the text in the clipboard and sends `Ctrl+V`, which works with apps that block `SendInput` (e.g. some games, certain terminals).
+If you enable **"Copiar al portapapeles como fallback"** in Settings, the app additionally puts the text in the clipboard and sends `Ctrl+V`, which works with apps that block `SendInput` (e.g. some games, certain terminals).
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---|---|
 | "Failed to start recording" | Check microphone permissions: Settings → Privacy → Microphone |
-| "OPENAI_API_KEY not set" | Configure key in Settings (see Setup above) |
+| Settings open instead of recording | No API key configured — add it in Settings |
 | "Invalid API key" | Key is wrong or revoked — update in Settings |
 | Hotkey already in use | Another app registered the same combo — change it in Settings |
-| Text appears in wrong window | Click into the target window, then use the hotkey |
+| Text appears in wrong window | Use the hotkey instead of the button (keeps focus in target app) |
 | Overlay not visible | Double-click tray icon to show it |
+| Dropdown invisible in dark mode | Already fixed — update to latest build |
 
 ## Project structure
 
 ```
-VoiceType/
+WinAiRecorder/
 ├── App.xaml / App.xaml.cs          — startup, tray icon, theme management
-├── MainWindow.xaml / .cs           — floating overlay UI
+├── MainWindow.xaml / .cs           — floating overlay UI + waveform visualizer
 ├── ConfigWindow.xaml / .cs         — settings dialog
 ├── Models/
 │   └── AppSettings.cs              — settings model
