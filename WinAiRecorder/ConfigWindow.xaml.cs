@@ -1,8 +1,6 @@
-using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using WinAiRecorder.Helpers;
 using WinAiRecorder.Services;
 
 namespace WinAiRecorder;
@@ -14,7 +12,6 @@ public partial class ConfigWindow : Window
     private readonly TranscriptionService _transcriptionService;
     private string _capturedHotkey = "";
     private bool _capturingHotkey;
-    private string _originalTheme = "auto";
     private bool _apiKeyIsPlaceholder;
 
     public ConfigWindow(SettingsService settingsService, MainWindow mainWindow)
@@ -52,33 +49,9 @@ public partial class ConfigWindow : Window
         _capturedHotkey = settings.Hotkey;
         HotkeyBox.Text = settings.Hotkey;
 
-        // Theme
-        _originalTheme = settings.Theme;
-        foreach (ComboBoxItem item in ThemeComboBox.Items)
-        {
-            if (item.Tag?.ToString() == settings.Theme)
-            {
-                ThemeComboBox.SelectedItem = item;
-                break;
-            }
-        }
-        if (ThemeComboBox.SelectedItem == null)
-            ThemeComboBox.SelectedIndex = 0;
-
         // Options
         ClipboardFallbackCheck.IsChecked = settings.UseClipboardFallback;
-
-        // AutoStart combobox
-        foreach (ComboBoxItem item in AutoStartComboBox.Items)
-        {
-            if (item.Tag?.ToString() == settings.AutoStart)
-            {
-                AutoStartComboBox.SelectedItem = item;
-                break;
-            }
-        }
-        if (AutoStartComboBox.SelectedItem == null)
-            AutoStartComboBox.SelectedIndex = 0;
+        RefreshMinutesBox.Text = settings.RefreshStatusMinutes.ToString();
     }
 
     private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -208,16 +181,6 @@ public partial class ConfigWindow : Window
         }
     }
 
-    private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (ThemeComboBox.SelectedItem is ComboBoxItem item)
-        {
-            var themeSetting = item.Tag?.ToString() ?? "auto";
-            var theme = ThemeHelper.ResolveTheme(themeSetting);
-            App.ApplyDynamicTheme(theme);
-        }
-    }
-
     private void HotkeyBox_GotFocus(object sender, RoutedEventArgs e)
     {
         _capturingHotkey = true;
@@ -289,17 +252,13 @@ public partial class ConfigWindow : Window
         bool hotkeyChanged = newHotkey != _settingsService.Settings.Hotkey;
         _settingsService.Settings.Hotkey = newHotkey;
 
-        // Theme
-        if (ThemeComboBox.SelectedItem is ComboBoxItem themeItem)
-            _settingsService.Settings.Theme = themeItem.Tag?.ToString() ?? "auto";
-
         _settingsService.Settings.UseClipboardFallback = ClipboardFallbackCheck.IsChecked == true;
 
-        if (AutoStartComboBox.SelectedItem is ComboBoxItem startItem)
-            _settingsService.Settings.AutoStart = startItem.Tag?.ToString() ?? "no";
+        if (int.TryParse(RefreshMinutesBox.Text, out int mins) && mins > 0)
+            _settingsService.Settings.RefreshStatusMinutes = mins;
 
-        SetAutoStart(_settingsService.Settings.AutoStart);
         _settingsService.Save();
+        _mainWindow.UpdateRefreshTimer();
 
         if (hotkeyChanged)
         {
@@ -326,39 +285,10 @@ public partial class ConfigWindow : Window
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
     {
-        // Revert theme preview if cancelled
-        var theme = ThemeHelper.ResolveTheme(_originalTheme);
-        App.ApplyDynamicTheme(theme);
         DialogResult = false;
         Close();
     }
 
-    private static void SetAutoStart(string value)
-    {
-        const string keyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-        const string valueName = "WinAiRecorder";
-
-        try
-        {
-            using var key = Registry.CurrentUser.OpenSubKey(keyPath, writable: true);
-            if (key == null) return;
-
-            if (value == "yes" || value == "minimized")
-            {
-                var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
-                if (!string.IsNullOrEmpty(exePath))
-                {
-                    var args = value == "minimized" ? " --minimized" : "";
-                    key.SetValue(valueName, $"\"{exePath}\"{args}");
-                }
-            }
-            else
-            {
-                key.DeleteValue(valueName, throwOnMissingValue: false);
-            }
-        }
-        catch { }
-    }
 }
 
 public class ModelItem

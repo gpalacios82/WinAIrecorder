@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Win AI Recorder — Settings"
-        Width="360" Height="368"
+        Width="360" Height="318"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -154,12 +154,10 @@
             <RowDefinition Height="28"/>    <!-- Model -->
             <RowDefinition Height="7"/>
             <RowDefinition Height="28"/>    <!-- Hotkey -->
-            <RowDefinition Height="7"/>
-            <RowDefinition Height="28"/>    <!-- Theme -->
             <RowDefinition Height="14"/>
             <RowDefinition Height="1"/>     <!-- Separator -->
             <RowDefinition Height="14"/>
-            <RowDefinition Height="Auto"/>  <!-- Checkboxes -->
+            <RowDefinition Height="Auto"/>  <!-- Checkboxes + Refresh -->
             <RowDefinition Height="*"/>
             <RowDefinition Height="28"/>    <!-- Buttons -->
         </Grid.RowDefinitions>
@@ -232,35 +230,24 @@
                      LostFocus="HotkeyBox_LostFocus"/>
         </DockPanel>
 
-        <!-- Theme -->
-        <DockPanel Grid.Row="8">
-            <TextBlock DockPanel.Dock="Left" Text="Tema" Style="{StaticResource Label}"/>
-            <ComboBox x:Name="ThemeComboBox" SelectionChanged="ThemeComboBox_SelectionChanged">
-                <ComboBoxItem Tag="auto">Auto (sistema)</ComboBoxItem>
-                <ComboBoxItem Tag="dark">Oscuro</ComboBoxItem>
-                <ComboBoxItem Tag="light">Claro</ComboBoxItem>
-            </ComboBox>
-        </DockPanel>
-
         <!-- Separator -->
-        <Border Grid.Row="10" Height="1" Background="{DynamicResource BorderBrush}"/>
+        <Border Grid.Row="8" Height="1" Background="{DynamicResource BorderBrush}"/>
 
         <!-- Options -->
-        <StackPanel Grid.Row="12">
+        <StackPanel Grid.Row="10">
             <CheckBox x:Name="ClipboardFallbackCheck"
                       Content="Copiar al portapapeles como fallback"/>
             <DockPanel Margin="0,8,0,0">
-                <TextBlock DockPanel.Dock="Left" Text="Inicio" Style="{StaticResource Label}"/>
-                <ComboBox x:Name="AutoStartComboBox">
-                    <ComboBoxItem Tag="no">No iniciar con Windows</ComboBoxItem>
-                    <ComboBoxItem Tag="yes">Iniciar con Windows</ComboBoxItem>
-                    <ComboBoxItem Tag="minimized">Iniciar con Windows (en bandeja)</ComboBoxItem>
-                </ComboBox>
+                <TextBlock DockPanel.Dock="Left" Text="Refresh" Style="{StaticResource Label}"/>
+                <TextBlock DockPanel.Dock="Right" Text="min" FontSize="12"
+                           Foreground="{DynamicResource SubtextBrush}"
+                           VerticalAlignment="Center" Margin="6,0,0,0"/>
+                <TextBox x:Name="RefreshMinutesBox" Text="5"/>
             </DockPanel>
         </StackPanel>
 
         <!-- Buttons -->
-        <Grid Grid.Row="14">
+        <Grid Grid.Row="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>

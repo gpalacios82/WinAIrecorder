@@ -34,29 +34,13 @@ public partial class App : Application
         // Load settings
         SettingsService.Load();
 
-        // Apply theme
-        var theme = ThemeHelper.ResolveTheme(SettingsService.Settings.Theme);
-        ApplyDynamicTheme(theme);
+        // Always dark mode
+        ApplyDynamicTheme(AppTheme.Dark);
 
-        // Create main window (overlay)
-        // Always Show() so the Loaded event fires and the hotkey gets registered.
-        // If starting minimized, hide immediately after — use Opacity trick to avoid flash.
+        // Create main window (overlay) — never steal focus
         _mainWindow = new MainWindow(SettingsService);
-        bool startMinimized = e.Args.Contains("--minimized");
-
-        // Always show without activating — overlay must NEVER steal focus.
         _mainWindow.ShowActivated = false;
-        if (startMinimized)
-        {
-            _mainWindow.Opacity = 0;
-            _mainWindow.Show();
-            _mainWindow.Hide();
-            _mainWindow.Opacity = 1;
-        }
-        else
-        {
-            _mainWindow.Show();
-        }
+        _mainWindow.Show();
         _mainWindow.ShowActivated = true;
 
         // Create system tray icon

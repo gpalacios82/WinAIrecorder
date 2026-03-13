@@ -28,7 +28,8 @@ You press Ctrl+Shift+Space
 - **Types the text directly** into the focused app via keyboard simulation — nothing goes to the clipboard by default
 - **Stays out of your way** — tiny floating overlay, no taskbar entry, no splash screen
 - **Global hotkey** works even when the app is hidden in the system tray
-- **Dark / light theme** that follows Windows automatically
+- **Always on top** — overlay stays above all windows; a periodic refresh timer re-forces it in case Windows revokes it
+- **Dark theme** — fixed dark UI
 - **Remembers position** across restarts
 - **Visual feedback** — animated waveform while recording, spinner while processing
 
@@ -84,10 +85,8 @@ All settings are in the **Settings** window (right-click overlay → Settings…
 | **API Key** | — | Your OpenAI API key. Stored as a Windows user environment variable, never in a file. |
 | **Model** | `gpt-4o-mini-transcribe` | Transcription model. `gpt-4o-mini-transcribe` is the best balance of speed and cost. Use `gpt-4o-transcribe` for maximum accuracy. |
 | **Hotkey** | `Ctrl+Shift+Space` | Global hotkey to start/stop recording. Click the field and press your combo to change it. |
-| **Theme** | Auto | Follows Windows dark/light mode automatically, or force one. |
 | **Clipboard fallback** | Off | If enabled, also puts the text in the clipboard and sends Ctrl+V. Useful for apps that block keyboard simulation (some games, certain terminals). |
-| **Start with Windows** | No | `No` · `Yes` · `Yes, minimized` (starts hidden in system tray). |
-| **Pin on top** | On | Keeps the overlay above all other windows. Right-click the overlay to toggle. |
+| **Refresh (min)** | `5` | How often (in minutes) the overlay re-asserts its Always on Top state, in case Windows silently removes it. |
 
 ### Where settings are stored
 
@@ -186,11 +185,9 @@ WinAiRecorder/
 
 | Issue | Workaround |
 |---|---|
-| **Text pasted to wrong window after using "Start with Windows"** | Press the hotkey once to show the overlay, then switch to the app you want to dictate in, then press the hotkey again to start recording. The first hotkey press after startup pins the target window. |
-| **Always on Top not active after restart** | Open the right-click menu and toggle "Pin (Always on top)" off and back on once. Only needed if the setting didn't apply on first launch. |
 | **Text goes nowhere when overlay was hidden in tray** | If focus is lost, use the hotkey (not the button) to start recording — it restores focus to the target app automatically. |
 
-These are focus/activation edge cases caused by Windows restrictions on which processes can change the foreground window. Active work in progress.
+Focus/activation edge cases are caused by Windows restrictions on which processes can change the foreground window. The Refresh timer mitigates the Always on Top issue automatically.
 
 ---
 

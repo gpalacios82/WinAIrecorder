@@ -23,6 +23,7 @@ public partial class MainWindow : Window
     private string? _lastError;
     private System.Threading.CancellationTokenSource? _transcriptionCts;
     private bool _forceClose;
+    private System.Windows.Threading.DispatcherTimer? _refreshTimer;
 
     // Wave visualizer
     private double _wavePhase = 0.0;
@@ -97,9 +98,9 @@ public partial class MainWindow : Window
         // Register hotkey
         RegisterHotkey();
 
-        // Apply always-on-top setting
-        Topmost = _settingsService.Settings.AlwaysOnTop;
-        UpdatePinMenuItem();
+        // Always on top — hardcoded; refresh timer re-forces it periodically
+        Topmost = true;
+        StartRefreshTimer();
     }
 
     private void RegisterHotkey()
@@ -392,14 +393,6 @@ public partial class MainWindow : Window
             return new IntPtr(MA_NOACTIVATE);
         }
 
-        if (msg == NativeMethods.WM_SETTINGCHANGE)
-        {
-            if (_settingsService.Settings.Theme == "auto")
-            {
-                var theme = ThemeHelper.GetWindowsTheme();
-                App.ApplyDynamicTheme(theme);
-            }
-        }
         return IntPtr.Zero;
     }
 
@@ -410,20 +403,20 @@ public partial class MainWindow : Window
             DragMove();
     }
 
+    private void StartRefreshTimer()
+    {
+        _refreshTimer?.Stop();
+        _refreshTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMinutes(_settingsService.Settings.RefreshStatusMinutes)
+        };
+        _refreshTimer.Tick += (s, e) => { Topmost = false; Topmost = true; };
+        _refreshTimer.Start();
+    }
+
+    public void UpdateRefreshTimer() => StartRefreshTimer();
+
     // Context menu
-    private void PinMenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        Topmost = !Topmost;
-        _settingsService.Settings.AlwaysOnTop = Topmost;
-        _settingsService.Save();
-        UpdatePinMenuItem();
-    }
-
-    private void UpdatePinMenuItem()
-    {
-        PinMenuItem.Header = Topmost ? "✓ Pin (Always on top)" : "Pin (Always on top)";
-    }
-
     private void HideMenuItem_Click(object sender, RoutedEventArgs e)
     {
         Hide();

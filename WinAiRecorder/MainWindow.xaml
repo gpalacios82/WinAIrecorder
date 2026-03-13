@@ -8,7 +8,7 @@
         Background="Transparent"
         ShowInTaskbar="False"
         ResizeMode="NoResize"
-        Topmost="False"
+        Topmost="True"
         WindowStartupLocation="Manual">
 
     <Window.Resources>
@@ -163,7 +163,6 @@
 
     <Window.ContextMenu>
         <ContextMenu x:Name="OverlayContextMenu">
-            <MenuItem x:Name="PinMenuItem" Header="Pin (Always on top)" Click="PinMenuItem_Click"/>
             <MenuItem Header="Hide" Click="HideMenuItem_Click"/>
             <Separator/>
             <MenuItem Header="Settings..." Click="SettingsMenuItem_Click"/>
