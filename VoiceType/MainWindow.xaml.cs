@@ -43,11 +43,17 @@ public partial class MainWindow : Window
         SetupEventHandlers();
         SetupPosition();
 
-        // Handle WM_SETTINGCHANGE for theme
+        // Handle WM_SETTINGCHANGE for theme + apply WS_EX_NOACTIVATE
         SourceInitialized += (s, e) =>
         {
-            var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            var hwnd = new WindowInteropHelper(this).Handle;
+            var source = HwndSource.FromHwnd(hwnd);
             source?.AddHook(ThemeWndProc);
+
+            // Prevent overlay from ever stealing focus when clicked
+            int exStyle = NativeMethods.GetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE);
+            NativeMethods.SetWindowLong(hwnd, NativeMethods.GWL_EXSTYLE,
+                exStyle | NativeMethods.WS_EX_NOACTIVATE);
         };
     }
 
@@ -220,8 +226,10 @@ public partial class MainWindow : Window
             Application.Current?.Dispatcher.BeginInvoke(() => ((App)Application.Current).OpenSettings());
             return;
         }
-        // Capture foreground window before we take focus
+        // Capture target window first (before anything changes foreground)
         _pasteService.CaptureForegroundWindow();
+        // Show overlay if hidden in tray
+        if (!IsVisible) Show();
         ToggleRecording();
     }
 
