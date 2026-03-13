@@ -39,10 +39,21 @@ public partial class App : Application
         ApplyDynamicTheme(theme);
 
         // Create main window (overlay)
+        // Always Show() so the Loaded event fires and the hotkey gets registered.
+        // If starting minimized, hide immediately after — use Opacity trick to avoid flash.
         _mainWindow = new MainWindow(SettingsService);
         bool startMinimized = e.Args.Contains("--minimized");
-        if (!startMinimized)
+        if (startMinimized)
+        {
+            _mainWindow.Opacity = 0;
             _mainWindow.Show();
+            _mainWindow.Hide();
+            _mainWindow.Opacity = 1;
+        }
+        else
+        {
+            _mainWindow.Show();
+        }
 
         // Create system tray icon
         InitializeTrayIcon();
