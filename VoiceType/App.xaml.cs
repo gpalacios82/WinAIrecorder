@@ -45,15 +45,7 @@ public partial class App : Application
         // Create system tray icon
         InitializeTrayIcon();
 
-        // First run → open config
-        if (SettingsService.IsFirstRun)
-        {
-            var configWindow = new ConfigWindow(SettingsService, _mainWindow)
-            {
-                Owner = _mainWindow
-            };
-            configWindow.ShowDialog();
-        }
+        // First run notification is handled by MainWindow when user tries to record
     }
 
     private void InitializeTrayIcon()

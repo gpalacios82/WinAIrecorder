@@ -137,7 +137,7 @@
 
                 <!-- Audio level bar -->
                 <Grid Grid.Row="1" Margin="12,0,12,0" Height="6">
-                    <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="3" Height="4" VerticalAlignment="Center"/>
+                    <Border x:Name="LevelBarTrack" Background="{DynamicResource SurfaceBrush}" CornerRadius="3" Height="4" VerticalAlignment="Center" Visibility="Collapsed"/>
                     <Border x:Name="LevelBar"
                             Height="4"
                             CornerRadius="3"

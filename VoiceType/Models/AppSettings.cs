@@ -6,7 +6,7 @@ public class AppSettings
     public string Hotkey { get; set; } = "Ctrl+Shift+Space";
     public bool UseClipboardFallback { get; set; } = false;
     public bool AutoStart { get; set; } = false;
-    public bool AlwaysOnTop { get; set; } = false;
+    public bool AlwaysOnTop { get; set; } = true;
     public WindowPosition WindowPosition { get; set; } = new WindowPosition();
     public string Theme { get; set; } = "auto";
 }

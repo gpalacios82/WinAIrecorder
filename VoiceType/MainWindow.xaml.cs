@@ -155,6 +155,7 @@ public partial class MainWindow : Window
         SuccessIcon.Visibility = Visibility.Collapsed;
         ErrorIcon.Visibility = Visibility.Collapsed;
         LevelBar.Visibility = Visibility.Collapsed;
+        LevelBarTrack.Visibility = Visibility.Collapsed;
         StatusText.Text = "";
 
         // Update tray tooltip
@@ -169,6 +170,7 @@ public partial class MainWindow : Window
 
             case OverlayState.Recording:
                 MicPath.Fill = (Brush)FindResource("RecordingBrush");
+                LevelBarTrack.Visibility = Visibility.Visible;
                 LevelBar.Visibility = Visibility.Visible;
                 _pulseAnimation?.Begin(this, true);
                 if (tray != null) tray.ToolTipText = "VoiceType — Grabando…";
@@ -213,6 +215,11 @@ public partial class MainWindow : Window
 
     private void OnHotkeyPressed()
     {
+        if (!HasApiKey())
+        {
+            Application.Current?.Dispatcher.BeginInvoke(() => ((App)Application.Current).OpenSettings());
+            return;
+        }
         // Capture foreground window before we take focus
         _pasteService.CaptureForegroundWindow();
         ToggleRecording();
@@ -228,11 +235,21 @@ public partial class MainWindow : Window
         ToggleRecording();
     }
 
+    private static bool HasApiKey() =>
+        !string.IsNullOrWhiteSpace(
+            Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User)
+            ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY"));
+
     private void ToggleRecording()
     {
         switch (_state)
         {
             case OverlayState.Idle:
+                if (!HasApiKey())
+                {
+                    ((App)Application.Current).OpenSettings();
+                    return;
+                }
                 StartRecording();
                 break;
             case OverlayState.Recording:
