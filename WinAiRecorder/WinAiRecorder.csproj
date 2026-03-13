@@ -9,6 +9,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>WinAiRecorder</AssemblyName>
     <RootNamespace>WinAiRecorder</RootNamespace>
+    <Version>1.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Product>Win AI Recorder</Product>
+    <Copyright>MIT License</Copyright>
     <ApplicationIcon>Resources\mic-icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 

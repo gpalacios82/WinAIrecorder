@@ -1,162 +1,216 @@
 # Win AI Recorder
 
-Dictation overlay for Windows. Press a global hotkey, speak, and the transcribed text gets typed into whatever app has focus — no copy-paste needed.
+> Dictate anywhere on Windows. Press a hotkey, speak, and your words appear instantly in any app — powered by OpenAI Whisper.
 
-## How it works
+**Version 1.0** · Free & open source · Windows 10/11 x64
+
+---
+
+## What is it?
+
+Win AI Recorder is a lightweight floating overlay that lives in your system tray. Press a global hotkey, speak naturally, and the transcribed text is typed directly into whatever app you were using — your code editor, a chat window, a Word document, anywhere.
+
+No switching windows. No copy-pasting. It just works in the background.
 
 ```
-Hotkey pressed → microphone opens → you speak → WAV sent to OpenAI Whisper → text typed into active window
+You press Ctrl+Shift+Space
+→ Mic opens (you see a waveform)
+→ You speak
+→ Press hotkey again (or click the button)
+→ Text appears where your cursor was
 ```
 
-The overlay is a small floating button that lives in a corner of your screen. It has no taskbar entry; access it via the system tray icon.
+---
+
+## What it does
+
+- **Transcribes speech to text** using OpenAI Whisper (state-of-the-art accuracy, supports most languages)
+- **Types the text directly** into the focused app via keyboard simulation — nothing goes to the clipboard by default
+- **Stays out of your way** — tiny floating overlay, no taskbar entry, no splash screen
+- **Global hotkey** works even when the app is hidden in the system tray
+- **Dark / light theme** that follows Windows automatically
+- **Remembers position** across restarts
+- **Visual feedback** — animated waveform while recording, spinner while processing
+
+## What it does NOT do
+
+- It is **not a voice command system** — it transcribes speech, it does not execute commands
+- It does **not store or send your audio** anywhere other than the OpenAI API for transcription
+- It does **not require a subscription** — you pay OpenAI directly per use (Whisper is extremely cheap)
+- It does **not require the app to be visible** — hotkey works from the system tray
+- It does **not modify your clipboard** by default (optional fallback mode available)
+
+---
 
 ## Requirements
 
-| Requirement | Version |
+| | |
 |---|---|
-| Windows | 10 / 11 (x64) |
-| .NET SDK | 8.0+ (build only) |
-| OpenAI API key | Any account with audio transcription access |
+| **OS** | Windows 10 or 11 (64-bit) |
+| **API key** | OpenAI account with API access — [platform.openai.com](https://platform.openai.com) |
+| **Microphone** | Any microphone, including built-in laptop mic |
+| **.NET 8 SDK** | Only needed to build from source — not required to run the published EXE |
 
-## Build
+> **Cost:** Whisper via API costs roughly $0.006 per minute of audio. A typical 30-second dictation costs less than $0.001.
 
-```powershell
-cd C:\devops\WinAIrecorder\WinAiRecorder
-dotnet build
-```
+---
 
-Build output goes to `bin\Debug\net8.0-windows\win-x64\`.
+## Getting started
 
-### Run directly
+### 1. Get an OpenAI API key
 
-```powershell
-dotnet run
-```
+Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys) and create a key. You'll need a small credit balance ($5 will last a very long time at Whisper prices).
 
-### Publish as single self-contained EXE
+### 2. Run the app
 
-```powershell
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ..\publish
-```
+Download `WinAiRecorder.exe` from the [Releases](../../releases) page and run it — no installation required.
 
-Output: `publish\WinAiRecorder.exe`
+### 3. Configure your key
 
-> The published EXE (~155 MB) is fully self-contained — no .NET installation required on the target machine.
+On first launch, the overlay appears in the bottom-right corner. Right-click it → **Settings…**, paste your API key and click **✓ Validar** to test it, then **Guardar**.
 
-## Setup
+### 4. Start dictating
 
-### 1. Set your OpenAI API key
+Press `Ctrl+Shift+Space` (default hotkey), speak, press again to stop. Done.
 
-- Launch Win AI Recorder → right-click the overlay → **Settings…**
-- Paste your key in the API Key field → click **✓ Validar** to test it → **Guardar**
-- The key is stored as a user-level environment variable (`OPENAI_API_KEY`)
+---
 
-Or set it manually:
+## Configuration
 
-```powershell
-[System.Environment]::SetEnvironmentVariable("OPENAI_API_KEY", "sk-...", "User")
-```
+All settings are in the **Settings** window (right-click overlay → Settings…).
 
-### 2. First run
+| Setting | Default | Description |
+|---|---|---|
+| **API Key** | — | Your OpenAI API key. Stored as a Windows user environment variable, never in a file. |
+| **Model** | `gpt-4o-mini-transcribe` | Transcription model. `gpt-4o-mini-transcribe` is the best balance of speed and cost. Use `gpt-4o-transcribe` for maximum accuracy. |
+| **Hotkey** | `Ctrl+Shift+Space` | Global hotkey to start/stop recording. Click the field and press your combo to change it. |
+| **Theme** | Auto | Follows Windows dark/light mode automatically, or force one. |
+| **Clipboard fallback** | Off | If enabled, also puts the text in the clipboard and sends Ctrl+V. Useful for apps that block keyboard simulation (some games, certain terminals). |
+| **Start with Windows** | No | `No` · `Yes` · `Yes, minimized` (starts hidden in system tray). |
+| **Pin on top** | On | Keeps the overlay above all other windows. Right-click the overlay to toggle. |
 
-On first launch without a key configured, recording is blocked. The Settings window opens automatically when you try to record.
-
-## Usage
-
-| Action | How |
-|---|---|
-| Start / stop recording | Default hotkey `Ctrl+Shift+Space`, or click the overlay button |
-| Move overlay | Drag it anywhere |
-| Show / hide overlay | Double-click tray icon, or right-click tray → **Show / Hide** |
-| Change hotkey / model | Right-click overlay → **Settings…** |
-| Pin on top | Right-click overlay → **Pin (Always on top)** |
-| Exit | Right-click tray → **Exit** |
-
-### Recording states
-
-| Icon | Meaning |
-|---|---|
-| Blue mic | Idle — ready to record |
-| Red mic (pulsing) + sine waveform | Recording — waveform amplitude reflects volume |
-| Spinning arc | Processing (sending to API) |
-| Green checkmark (fades) | Done — text typed |
-| Orange triangle | Error — hover for details, auto-clears in 5 s |
-
-### Transcription models
-
-Configured in Settings. Defaults to `gpt-4o-mini-transcribe` (fastest/cheapest). Available models are fetched live from the API when a valid key is entered.
-
-- `gpt-4o-mini-transcribe` ⭐ recommended
-- `gpt-4o-transcribe`
-- `whisper-1`
-
-### Max recording duration
-
-Hard limit: **10 minutes**. The overlay flashes at 9 minutes as a warning, then stops automatically.
-
-## Configuration file
-
-Settings are saved to:
+### Where settings are stored
 
 ```
 %AppData%\WinAiRecorder\settings.json
 ```
 
-| Field | Default | Description |
-|---|---|---|
-| `Model` | `gpt-4o-mini-transcribe` | Transcription model |
-| `Hotkey` | `Ctrl+Shift+Space` | Global hotkey |
-| `UseClipboardFallback` | `false` | Also copy to clipboard (for apps that block SendInput) |
-| `AutoStart` | `no` | `no`, `yes`, or `minimized` (start hidden in system tray) |
-| `AlwaysOnTop` | `true` | Overlay always on top |
-| `Theme` | `auto` | `dark`, `light`, or `auto` (follows Windows setting) |
+The API key is stored separately as a Windows user environment variable (`OPENAI_API_KEY`) — it never touches the settings file.
 
-## Pasting behaviour
+---
 
-By default Win AI Recorder uses `SendInput` with Unicode key events — text appears exactly where the cursor is in any app without touching your clipboard.
+## Overlay states
 
-If you enable **"Copiar al portapapeles como fallback"** in Settings, the app additionally puts the text in the clipboard and sends `Ctrl+V`, which works with apps that block `SendInput` (e.g. some games, certain terminals).
-
-## Troubleshooting
-
-| Problem | Fix |
+| What you see | Meaning |
 |---|---|
-| "Failed to start recording" | Check microphone permissions: Settings → Privacy → Microphone |
-| Settings open instead of recording | No API key configured — add it in Settings |
-| "Invalid API key" | Key is wrong or revoked — update in Settings |
-| Hotkey already in use | Another app registered the same combo — change it in Settings |
-| Text appears in wrong window | Use the hotkey instead of the button (keeps focus in target app) |
-| Overlay not visible | Double-click tray icon to show it |
-| Dropdown invisible in dark mode | Already fixed — update to latest build |
+| Blue mic | Ready to record |
+| Red mic + animated waveform | Recording — waveform amplitude reflects your voice level |
+| Spinning arc | Sending audio to the API and waiting for the response |
+| Green checkmark (fades out) | Success — text has been typed |
+| Orange warning triangle | Error — hover for details, auto-clears after 5 seconds |
 
-## Project structure
+---
+
+## Tips
+
+- **Hotkey works from the tray** — you don't need the overlay visible to use it
+- **Move the overlay** by dragging it anywhere on screen; position is remembered
+- **Hide to tray** via right-click → Hide, or the tray icon context menu
+- **Cancel mid-transcription** by pressing the hotkey again while the spinner is showing
+- **Max recording time** is 10 minutes; the overlay flashes at 9 minutes as a warning
+
+---
+
+## Building from source
+
+### Prerequisites
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- Windows (WPF apps can only be built on Windows)
+- An OpenAI API key for testing
+
+### Build (debug)
+
+```powershell
+git clone https://github.com/gpalacios82/WinAIrecorder.git
+cd WinAIrecorder\WinAiRecorder
+dotnet build
+```
+
+Run directly:
+
+```powershell
+dotnet run
+```
+
+### Publish self-contained EXE
+
+```powershell
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ..\publish
+```
+
+Output: `publish\WinAiRecorder.exe` (~155 MB, no .NET required on target machine)
+
+### Project structure
 
 ```
 WinAiRecorder/
-├── App.xaml / App.xaml.cs          — startup, tray icon, theme management
-├── MainWindow.xaml / .cs           — floating overlay UI + waveform visualizer
+├── App.xaml / App.xaml.cs          — startup, tray icon, theme
+├── MainWindow.xaml / .cs           — floating overlay + waveform
 ├── ConfigWindow.xaml / .cs         — settings dialog
-├── Models/
-│   └── AppSettings.cs              — settings model
+├── Models/AppSettings.cs           — settings model (JSON)
 ├── Services/
 │   ├── AudioRecorderService.cs     — microphone capture (NAudio)
 │   ├── TranscriptionService.cs     — OpenAI Whisper API client
-│   ├── HotkeyService.cs            — global hotkey registration (Win32)
-│   ├── PasteService.cs             — text injection (SendInput / clipboard)
-│   └── SettingsService.cs          — settings load/save (JSON)
-├── Helpers/
-│   ├── ThemeHelper.cs              — Windows theme detection
-│   ├── IconHelper.cs               — programmatic tray icon (GDI+)
-│   └── NativeMethods.cs            — Win32 P/Invoke declarations
-└── Resources/
-    └── mic-icon.ico                — application icon
+│   ├── HotkeyService.cs            — global hotkey (Win32)
+│   ├── PasteService.cs             — text injection (SendInput)
+│   └── SettingsService.cs          — load/save settings
+└── Helpers/
+    ├── ThemeHelper.cs              — Windows theme detection
+    ├── IconHelper.cs               — tray icon (GDI+)
+    └── NativeMethods.cs            — Win32 P/Invoke
 ```
 
-## Dependencies
+### Dependencies
 
 | Package | Version | Purpose |
 |---|---|---|
 | `NAudio` | 2.2.1 | Microphone capture, WAV encoding |
 | `Hardcodet.NotifyIcon.Wpf` | 2.0.1 | System tray icon |
 | `System.Text.Json` | 8.0.5 | JSON serialization |
-| `System.Drawing.Common` | 8.0.0 | Programmatic icon generation |
+| `System.Drawing.Common` | 8.0.0 | Tray icon generation |
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| Settings open instead of recording | No API key set — configure it in Settings first |
+| "Failed to start recording" | Check microphone permissions: Windows Settings → Privacy → Microphone |
+| Key shows as invalid | Make sure you have a credit balance on your OpenAI account |
+| Hotkey conflict | Another app is using the same combo — change it in Settings |
+| Text typed into wrong app | Use the hotkey instead of the button; it preserves focus in the target window |
+| Overlay not visible | Double-click the tray icon to show it |
+| App already running message | Only one instance is allowed; check the system tray |
+
+---
+
+## Privacy
+
+- Audio is recorded locally and sent directly to the OpenAI API over HTTPS for transcription. It is not stored locally after the request completes.
+- No analytics, no telemetry, no accounts.
+- Your API key is stored as a Windows user environment variable on your own machine.
+- Source code is fully auditable above.
+
+---
+
+## License
+
+MIT — free to use, modify and distribute.
+
+---
+
+## Contributing
+
+Pull requests welcome. If you find a bug or have a feature idea, open an issue.
