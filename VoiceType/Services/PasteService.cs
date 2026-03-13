@@ -62,10 +62,9 @@ public class PasteService
 
     private static async Task PasteViaClipboard(string text)
     {
-        await Application.Current?.Dispatcher.InvokeAsync(() =>
-        {
-            Clipboard.SetText(text);
-        });
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher != null)
+            await dispatcher.InvokeAsync(() => Clipboard.SetText(text));
 
         await Task.Delay(50);
 
