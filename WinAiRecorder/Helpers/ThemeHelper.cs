@@ -1,6 +1,6 @@
 using Microsoft.Win32;
 
-namespace VoiceType.Helpers;
+namespace WinAiRecorder.Helpers;
 
 public enum AppTheme { Dark, Light }
 

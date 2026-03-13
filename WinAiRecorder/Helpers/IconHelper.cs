@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace VoiceType.Helpers;
+namespace WinAiRecorder.Helpers;
 
 public static class IconHelper
 {

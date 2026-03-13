@@ -1,9 +1,9 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-using VoiceType.Helpers;
+using WinAiRecorder.Helpers;
 
-namespace VoiceType.Services;
+namespace WinAiRecorder.Services;
 
 public class HotkeyService : IDisposable
 {

@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
 using System.Windows;
-using VoiceType.Helpers;
+using WinAiRecorder.Helpers;
 
-namespace VoiceType.Services;
+namespace WinAiRecorder.Services;
 
 public class PasteService
 {

@@ -4,10 +4,10 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using VoiceType.Helpers;
-using VoiceType.Services;
+using WinAiRecorder.Helpers;
+using WinAiRecorder.Services;
 
-namespace VoiceType;
+namespace WinAiRecorder;
 
 public enum OverlayState { Idle, Recording, Processing, Success, Error }
 

@@ -7,8 +7,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyName>VoiceType</AssemblyName>
-    <RootNamespace>VoiceType</RootNamespace>
+    <AssemblyName>WinAiRecorder</AssemblyName>
+    <RootNamespace>WinAiRecorder</RootNamespace>
     <ApplicationIcon>Resources\mic-icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 

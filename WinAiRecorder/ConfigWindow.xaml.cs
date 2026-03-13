@@ -2,10 +2,10 @@ using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using VoiceType.Helpers;
-using VoiceType.Services;
+using WinAiRecorder.Helpers;
+using WinAiRecorder.Services;
 
-namespace VoiceType;
+namespace WinAiRecorder;
 
 public partial class ConfigWindow : Window
 {
@@ -336,7 +336,7 @@ public partial class ConfigWindow : Window
     private static void SetAutoStart(string value)
     {
         const string keyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-        const string valueName = "VoiceType";
+        const string valueName = "WinAiRecorder";
 
         try
         {

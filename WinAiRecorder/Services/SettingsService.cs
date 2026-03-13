@@ -1,13 +1,13 @@
 using System.IO;
 using System.Text.Json;
-using VoiceType.Models;
+using WinAiRecorder.Models;
 
-namespace VoiceType.Services;
+namespace WinAiRecorder.Services;
 
 public class SettingsService
 {
     private static readonly string SettingsDir =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VoiceType");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "WinAiRecorder");
     private static readonly string SettingsPath = Path.Combine(SettingsDir, "settings.json");
 
     private static readonly JsonSerializerOptions JsonOptions = new()

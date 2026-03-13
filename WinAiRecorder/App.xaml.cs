@@ -1,10 +1,10 @@
 using System.Threading;
 using System.Windows;
 using Hardcodet.Wpf.TaskbarNotification;
-using VoiceType.Helpers;
-using VoiceType.Services;
+using WinAiRecorder.Helpers;
+using WinAiRecorder.Services;
 
-namespace VoiceType;
+namespace WinAiRecorder;
 
 public partial class App : Application
 {

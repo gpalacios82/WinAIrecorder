@@ -2,7 +2,7 @@ using System.IO;
 using System.Windows;
 using NAudio.Wave;
 
-namespace VoiceType.Services;
+namespace WinAiRecorder.Services;
 
 public class AudioRecorderService : IDisposable
 {

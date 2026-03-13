@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace VoiceType.Helpers;
+namespace WinAiRecorder.Helpers;
 
 internal static class NativeMethods
 {

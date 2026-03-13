@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace VoiceType.Services;
+namespace WinAiRecorder.Services;
 
 public class TranscriptionService
 {

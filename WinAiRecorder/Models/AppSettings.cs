@@ -1,4 +1,4 @@
-namespace VoiceType.Models;
+namespace WinAiRecorder.Models;
 
 public class AppSettings
 {
