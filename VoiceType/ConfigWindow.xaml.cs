@@ -67,7 +67,18 @@ public partial class ConfigWindow : Window
 
         // Options
         ClipboardFallbackCheck.IsChecked = settings.UseClipboardFallback;
-        AutoStartCheck.IsChecked = settings.AutoStart;
+
+        // AutoStart combobox
+        foreach (ComboBoxItem item in AutoStartComboBox.Items)
+        {
+            if (item.Tag?.ToString() == settings.AutoStart)
+            {
+                AutoStartComboBox.SelectedItem = item;
+                break;
+            }
+        }
+        if (AutoStartComboBox.SelectedItem == null)
+            AutoStartComboBox.SelectedIndex = 0;
     }
 
     private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -283,7 +294,9 @@ public partial class ConfigWindow : Window
             _settingsService.Settings.Theme = themeItem.Tag?.ToString() ?? "auto";
 
         _settingsService.Settings.UseClipboardFallback = ClipboardFallbackCheck.IsChecked == true;
-        _settingsService.Settings.AutoStart = AutoStartCheck.IsChecked == true;
+
+        if (AutoStartComboBox.SelectedItem is ComboBoxItem startItem)
+            _settingsService.Settings.AutoStart = startItem.Tag?.ToString() ?? "no";
 
         SetAutoStart(_settingsService.Settings.AutoStart);
         _settingsService.Save();
@@ -320,7 +333,7 @@ public partial class ConfigWindow : Window
         Close();
     }
 
-    private static void SetAutoStart(bool enable)
+    private static void SetAutoStart(string value)
     {
         const string keyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
         const string valueName = "VoiceType";
@@ -330,11 +343,14 @@ public partial class ConfigWindow : Window
             using var key = Registry.CurrentUser.OpenSubKey(keyPath, writable: true);
             if (key == null) return;
 
-            if (enable)
+            if (value == "yes" || value == "minimized")
             {
                 var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
                 if (!string.IsNullOrEmpty(exePath))
-                    key.SetValue(valueName, $"\"{exePath}\"");
+                {
+                    var args = value == "minimized" ? " --minimized" : "";
+                    key.SetValue(valueName, $"\"{exePath}\"{args}");
+                }
             }
             else
             {

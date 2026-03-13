@@ -22,8 +22,13 @@ public partial class MainWindow : Window
     private OverlayState _state = OverlayState.Idle;
     private string? _lastError;
     private System.Threading.CancellationTokenSource? _transcriptionCts;
-    private double _levelBarMaxWidth;
     private bool _forceClose;
+
+    // Wave visualizer
+    private System.Windows.Shapes.Rectangle[]? _waveBars;
+    private static readonly double[] WavePhases = { 0.0, 1.0, 2.1, 3.14, 4.2, 5.2, 6.28 };
+    private const double WaveMaxH = 14.0;
+    private const double WaveMinH = 2.0;
 
     // Storyboards
     private Storyboard? _pulseAnimation;
@@ -67,7 +72,6 @@ public partial class MainWindow : Window
 
         Loaded += OnWindowLoaded;
         Closing += OnWindowClosing;
-        SizeChanged += (s, e) => _levelBarMaxWidth = LevelBar.ActualWidth > 0 ? LevelBar.ActualWidth : 76;
     }
 
     private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -78,7 +82,7 @@ public partial class MainWindow : Window
         _successFadeAnimation = (Storyboard)Resources["SuccessFade"];
         _warnFlashAnimation = (Storyboard)Resources["WarnFlash"];
 
-        _levelBarMaxWidth = 76;
+        _waveBars = new[] { WaveBar1, WaveBar2, WaveBar3, WaveBar4, WaveBar5, WaveBar6, WaveBar7 };
 
         // Subscribe to success animation completion (once)
         if (_successFadeAnimation != null)
@@ -160,8 +164,7 @@ public partial class MainWindow : Window
         SpinnerGrid.Visibility = Visibility.Collapsed;
         SuccessIcon.Visibility = Visibility.Collapsed;
         ErrorIcon.Visibility = Visibility.Collapsed;
-        LevelBar.Visibility = Visibility.Collapsed;
-        LevelBarTrack.Visibility = Visibility.Collapsed;
+        WaveCanvas.Visibility = Visibility.Collapsed;
         StatusText.Text = "";
 
         // Update tray tooltip
@@ -176,8 +179,7 @@ public partial class MainWindow : Window
 
             case OverlayState.Recording:
                 MicPath.Fill = (Brush)FindResource("RecordingBrush");
-                LevelBarTrack.Visibility = Visibility.Visible;
-                LevelBar.Visibility = Visibility.Visible;
+                WaveCanvas.Visibility = Visibility.Visible;
                 _pulseAnimation?.Begin(this, true);
                 if (tray != null) tray.ToolTipText = "Win AI Recorder — Grabando…";
                 break;
@@ -290,10 +292,16 @@ public partial class MainWindow : Window
 
     private void OnAudioLevelChanged(float level)
     {
-        if (_state != OverlayState.Recording) return;
+        if (_state != OverlayState.Recording || _waveBars == null) return;
 
-        double width = _levelBarMaxWidth * level;
-        LevelBar.Width = Math.Max(0, Math.Min(width, _levelBarMaxWidth));
+        double t = Environment.TickCount64 / 180.0;
+        for (int i = 0; i < _waveBars.Length; i++)
+        {
+            double h = WaveMinH + (WaveMaxH - WaveMinH) * level * (0.5 + 0.5 * Math.Sin(t + WavePhases[i]));
+            h = Math.Max(WaveMinH, Math.Min(WaveMaxH, h));
+            _waveBars[i].Height = h;
+            System.Windows.Controls.Canvas.SetTop(_waveBars[i], (WaveMaxH - h) / 2.0 + 1);
+        }
     }
 
     private async void OnRecordingCompleted(MemoryStream audioStream)

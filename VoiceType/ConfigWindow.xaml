@@ -249,9 +249,14 @@
         <StackPanel Grid.Row="12">
             <CheckBox x:Name="ClipboardFallbackCheck"
                       Content="Copiar al portapapeles como fallback"/>
-            <CheckBox x:Name="AutoStartCheck"
-                      Content="Iniciar con Windows"
-                      Margin="0,8,0,0"/>
+            <DockPanel Margin="0,8,0,0">
+                <TextBlock DockPanel.Dock="Left" Text="Inicio" Style="{StaticResource Label}"/>
+                <ComboBox x:Name="AutoStartComboBox">
+                    <ComboBoxItem Tag="no">No iniciar con Windows</ComboBoxItem>
+                    <ComboBoxItem Tag="yes">Iniciar con Windows</ComboBoxItem>
+                    <ComboBoxItem Tag="minimized">Iniciar con Windows (en bandeja)</ComboBoxItem>
+                </ComboBox>
+            </DockPanel>
         </StackPanel>
 
         <!-- Buttons -->

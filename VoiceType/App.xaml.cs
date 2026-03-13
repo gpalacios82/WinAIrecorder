@@ -40,7 +40,9 @@ public partial class App : Application
 
         // Create main window (overlay)
         _mainWindow = new MainWindow(SettingsService);
-        _mainWindow.Show();
+        bool startMinimized = e.Args.Contains("--minimized");
+        if (!startMinimized)
+            _mainWindow.Show();
 
         // Create system tray icon
         InitializeTrayIcon();

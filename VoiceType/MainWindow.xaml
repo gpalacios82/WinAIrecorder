@@ -135,18 +135,20 @@
                     </Grid>
                 </Grid>
 
-                <!-- Audio level bar -->
-                <Grid Grid.Row="1" Margin="12,0,12,0" Height="6">
-                    <Border x:Name="LevelBarTrack" Background="{DynamicResource SurfaceBrush}" CornerRadius="3" Height="4" VerticalAlignment="Center" Visibility="Collapsed"/>
-                    <Border x:Name="LevelBar"
-                            Height="4"
-                            CornerRadius="3"
-                            HorizontalAlignment="Left"
-                            Width="0"
-                            Background="{DynamicResource RecordingBrush}"
-                            VerticalAlignment="Center"
-                            Visibility="Collapsed"/>
-                </Grid>
+                <!-- Audio wave indicator -->
+                <Canvas x:Name="WaveCanvas" Grid.Row="1"
+                        Width="76" Height="16"
+                        Margin="0,0,0,2"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed">
+                    <Rectangle x:Name="WaveBar1" Canvas.Left="0"  Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
+                    <Rectangle x:Name="WaveBar2" Canvas.Left="10" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
+                    <Rectangle x:Name="WaveBar3" Canvas.Left="20" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
+                    <Rectangle x:Name="WaveBar4" Canvas.Left="30" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
+                    <Rectangle x:Name="WaveBar5" Canvas.Left="40" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
+                    <Rectangle x:Name="WaveBar6" Canvas.Left="50" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
+                    <Rectangle x:Name="WaveBar7" Canvas.Left="60" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
+                </Canvas>
 
                 <!-- Status label (optional tooltip area) -->
                 <TextBlock x:Name="StatusText"
