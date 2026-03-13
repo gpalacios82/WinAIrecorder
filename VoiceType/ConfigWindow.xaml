@@ -1,7 +1,7 @@
 <Window x:Class="VoiceType.ConfigWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="VoiceType — Settings"
+        Title="Win AI Recorder — Settings"
         Width="360" Height="368"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
@@ -94,7 +94,7 @@
 
         <!-- Title + current key hint -->
         <DockPanel Grid.Row="0">
-            <TextBlock DockPanel.Dock="Left" Text="VoiceType Settings"
+            <TextBlock DockPanel.Dock="Left" Text="Win AI Recorder"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{DynamicResource TextBrush}"/>
             <TextBlock x:Name="CurrentKeyText" DockPanel.Dock="Right"
@@ -107,16 +107,36 @@
         <!-- API Key -->
         <DockPanel Grid.Row="2">
             <TextBlock DockPanel.Dock="Left" Text="API Key" Style="{StaticResource Label}"/>
-            <PasswordBox x:Name="ApiKeyBox"/>
+            <Button DockPanel.Dock="Right"
+                    x:Name="ValidateKeyBtn"
+                    Content="✓ Validar" Width="72"
+                    Template="{StaticResource FlatBtn}"
+                    Background="{DynamicResource SurfaceBrush}"
+                    Foreground="{DynamicResource SubtextBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" FontSize="11"
+                    Click="ValidateKey_Click"
+                    Margin="6,0,0,0"/>
+            <PasswordBox x:Name="ApiKeyBox"
+                         PasswordChanged="ApiKeyBox_PasswordChanged"/>
         </DockPanel>
 
         <!-- Model -->
         <DockPanel Grid.Row="4">
             <TextBlock DockPanel.Dock="Left" Text="Model" Style="{StaticResource Label}"/>
-            <TextBlock x:Name="ModelLoadingText" DockPanel.Dock="Right"
+            <Button DockPanel.Dock="Right"
+                    Content="↺" Width="28"
+                    Template="{StaticResource FlatBtn}"
+                    Background="{DynamicResource SurfaceBrush}"
+                    Foreground="{DynamicResource TextBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" FontSize="13"
+                    Click="RefreshModels_Click"
+                    Margin="6,0,0,0"/>
+            <TextBlock x:Name="ModelLoadingText"
                        Text="cargando…" FontSize="11"
                        Foreground="{DynamicResource SubtextBrush}"
-                       VerticalAlignment="Center" Margin="6,0,0,0"
+                       VerticalAlignment="Center"
                        Visibility="Collapsed"/>
             <ComboBox x:Name="ModelComboBox"/>
         </DockPanel>

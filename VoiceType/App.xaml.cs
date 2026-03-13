@@ -20,11 +20,11 @@ public partial class App : Application
         base.OnStartup(e);
 
         // Single instance check
-        _mutex = new Mutex(true, "VoiceType_SingleInstance", out bool createdNew);
+        _mutex = new Mutex(true, "Win AI Recorder_SingleInstance", out bool createdNew);
         _mutexOwned = createdNew;
         if (!createdNew)
         {
-            MessageBox.Show("VoiceType is already running.", "VoiceType", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Win AI Recorder is already running.", "Win AI Recorder", MessageBoxButton.OK, MessageBoxImage.Information);
             _mutex.Dispose();
             _mutex = null;
             Shutdown();
@@ -55,7 +55,7 @@ public partial class App : Application
         // Use generated icon
         var icon = IconHelper.CreateMicrophoneIcon(32);
         _taskbarIcon.Icon = icon;
-        _taskbarIcon.ToolTipText = "VoiceType — Listo";
+        _taskbarIcon.ToolTipText = "Win AI Recorder — Listo";
 
         // Double-click to show/hide
         _taskbarIcon.TrayMouseDoubleClick += (s, e) => ToggleOverlay();

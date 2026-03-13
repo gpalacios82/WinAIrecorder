@@ -1,7 +1,7 @@
 <Window x:Class="VoiceType.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="VoiceType"
+        Title="Win AI Recorder"
         Width="100" Height="130"
         WindowStyle="None"
         AllowsTransparency="True"

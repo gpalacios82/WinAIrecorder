@@ -165,7 +165,7 @@ public partial class MainWindow : Window
         {
             case OverlayState.Idle:
                 MicPath.Fill = (Brush)FindResource("AccentBrush");
-                if (tray != null) tray.ToolTipText = "VoiceType — Listo";
+                if (tray != null) tray.ToolTipText = "Win AI Recorder — Listo";
                 break;
 
             case OverlayState.Recording:
@@ -173,14 +173,14 @@ public partial class MainWindow : Window
                 LevelBarTrack.Visibility = Visibility.Visible;
                 LevelBar.Visibility = Visibility.Visible;
                 _pulseAnimation?.Begin(this, true);
-                if (tray != null) tray.ToolTipText = "VoiceType — Grabando…";
+                if (tray != null) tray.ToolTipText = "Win AI Recorder — Grabando…";
                 break;
 
             case OverlayState.Processing:
                 MicButton.Visibility = Visibility.Collapsed;
                 SpinnerGrid.Visibility = Visibility.Visible;
                 _spinAnimation?.Begin(this, true);
-                if (tray != null) tray.ToolTipText = "VoiceType — Procesando…";
+                if (tray != null) tray.ToolTipText = "Win AI Recorder — Procesando…";
                 break;
 
             case OverlayState.Success:
@@ -188,7 +188,7 @@ public partial class MainWindow : Window
                 SuccessIcon.Visibility = Visibility.Visible;
                 SuccessIcon.Opacity = 1.0;
                 _successFadeAnimation?.Begin(this, true);
-                if (tray != null) tray.ToolTipText = "VoiceType — Listo";
+                if (tray != null) tray.ToolTipText = "Win AI Recorder — Listo";
                 break;
 
             case OverlayState.Error:
@@ -196,7 +196,7 @@ public partial class MainWindow : Window
                 ErrorIcon.Visibility = Visibility.Visible;
                 ErrorPath.ToolTip = errorMessage ?? "An error occurred";
                 StatusText.Text = "Error";
-                if (tray != null) tray.ToolTipText = "VoiceType — Error";
+                if (tray != null) tray.ToolTipText = "Win AI Recorder — Error";
                 // Auto-clear after 5 seconds
                 var timer = new System.Windows.Threading.DispatcherTimer
                 {
@@ -268,12 +268,14 @@ public partial class MainWindow : Window
 
     private void StartRecording()
     {
+        Task.Run(() => Console.Beep(880, 80));   // high short beep — start
         _audioRecorder.StartRecording();
         SetState(OverlayState.Recording);
     }
 
     private void StopRecording()
     {
+        Task.Run(() => Console.Beep(520, 100));  // lower short beep — stop
         _audioRecorder.StopRecording();
         SetState(OverlayState.Processing);
     }
@@ -348,6 +350,16 @@ public partial class MainWindow : Window
 
     private IntPtr ThemeWndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
+        const int WM_MOUSEACTIVATE = 0x0021;
+        const int MA_NOACTIVATE = 3;
+
+        // Never steal focus when clicked — keeps target app active for SendInput
+        if (msg == WM_MOUSEACTIVATE)
+        {
+            handled = true;
+            return new IntPtr(MA_NOACTIVATE);
+        }
+
         if (msg == NativeMethods.WM_SETTINGCHANGE)
         {
             if (_settingsService.Settings.Theme == "auto")

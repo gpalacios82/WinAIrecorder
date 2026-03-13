@@ -15,6 +15,7 @@ public partial class ConfigWindow : Window
     private string _capturedHotkey = "";
     private bool _capturingHotkey;
     private string _originalTheme = "auto";
+    private bool _apiKeyIsPlaceholder;
 
     public ConfigWindow(SettingsService settingsService, MainWindow mainWindow)
     {
@@ -35,9 +36,17 @@ public partial class ConfigWindow : Window
         var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User)
                      ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
 
-        CurrentKeyText.Text = string.IsNullOrWhiteSpace(apiKey)
-            ? "sin configurar"
-            : apiKey.Length > 8 ? apiKey[..4] + "…" + apiKey[^4..] : "sk-…";
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            CurrentKeyText.Text = "sin configurar";
+        }
+        else
+        {
+            // Show masked placeholder so user sees there's a key saved
+            CurrentKeyText.Text = apiKey.Length > 8 ? apiKey[..4] + "…" + apiKey[^4..] : "sk-…";
+            ApiKeyBox.Password = new string('●', Math.Min(apiKey.Length, 32));
+            _apiKeyIsPlaceholder = true;
+        }
 
         // Hotkey
         _capturedHotkey = settings.Hotkey;
@@ -61,10 +70,93 @@ public partial class ConfigWindow : Window
         AutoStartCheck.IsChecked = settings.AutoStart;
     }
 
+    private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        _apiKeyIsPlaceholder = false;
+        ValidateKeyBtn.Content = "✓ Validar";
+        ValidateKeyBtn.Foreground = (System.Windows.Media.Brush)FindResource("SubtextBrush");
+    }
+
+    private async void ValidateKey_Click(object sender, RoutedEventArgs e)
+    {
+        var key = ApiKeyBox.Password;
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            // Try the saved key
+            key = Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User)
+                  ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
+        }
+
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            ValidateKeyBtn.Content = "sin key";
+            ValidateKeyBtn.Foreground = System.Windows.Media.Brushes.OrangeRed;
+            return;
+        }
+
+        ValidateKeyBtn.Content = "…";
+        ValidateKeyBtn.IsEnabled = false;
+
+        try
+        {
+            // Temporarily set the key in-process so FetchModelsAsync picks it up
+            var previous = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            Environment.SetEnvironmentVariable("OPENAI_API_KEY", key);
+
+            var models = await _transcriptionService.FetchModelsAsync();
+            bool valid = models.Count > 0;
+
+            Environment.SetEnvironmentVariable("OPENAI_API_KEY", previous);
+
+            if (valid)
+            {
+                ValidateKeyBtn.Content = "✓ OK";
+                ValidateKeyBtn.Foreground = (System.Windows.Media.Brush)FindResource("SuccessBrush");
+                // Refresh models with the new key
+                await RefreshModelsWithKeyAsync(key);
+            }
+            else
+            {
+                ValidateKeyBtn.Content = "✗ Error";
+                ValidateKeyBtn.Foreground = System.Windows.Media.Brushes.OrangeRed;
+            }
+        }
+        catch
+        {
+            ValidateKeyBtn.Content = "✗ Error";
+            ValidateKeyBtn.Foreground = System.Windows.Media.Brushes.OrangeRed;
+        }
+        finally
+        {
+            ValidateKeyBtn.IsEnabled = true;
+        }
+    }
+
+    private void RefreshModels_Click(object sender, RoutedEventArgs e) => LoadModelsAsync();
+
     private async void LoadModelsAsync()
+    {
+        var key = ApiKeyBox.Password;
+        if (!string.IsNullOrWhiteSpace(key))
+        {
+            var previous = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            Environment.SetEnvironmentVariable("OPENAI_API_KEY", key);
+            await RefreshModelsWithKeyAsync(key);
+            Environment.SetEnvironmentVariable("OPENAI_API_KEY", previous);
+        }
+        else
+        {
+            await RefreshModelsWithKeyAsync(null);
+        }
+    }
+
+    private async Task RefreshModelsWithKeyAsync(string? keyOverride)
     {
         ModelLoadingText.Visibility = Visibility.Visible;
         ModelComboBox.IsEnabled = false;
+
+        if (keyOverride != null)
+            Environment.SetEnvironmentVariable("OPENAI_API_KEY", keyOverride);
 
         try
         {
@@ -99,7 +191,8 @@ public partial class ConfigWindow : Window
         }
         finally
         {
-            ModelLoadingText.Visibility = Visibility.Collapsed;
+            if (ModelLoadingText.Text != "error al cargar")
+                ModelLoadingText.Visibility = Visibility.Collapsed;
             ModelComboBox.IsEnabled = true;
         }
     }
@@ -168,7 +261,7 @@ public partial class ConfigWindow : Window
     {
         StatusText.Text = "Guardando…";
 
-        var newKey = ApiKeyBox.Password;
+        var newKey = _apiKeyIsPlaceholder ? "" : ApiKeyBox.Password;
         if (!string.IsNullOrWhiteSpace(newKey))
         {
             Environment.SetEnvironmentVariable("OPENAI_API_KEY", newKey, EnvironmentVariableTarget.User);
