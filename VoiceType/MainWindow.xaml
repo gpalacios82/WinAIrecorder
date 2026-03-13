@@ -135,20 +135,19 @@
                     </Grid>
                 </Grid>
 
-                <!-- Audio wave indicator -->
-                <Canvas x:Name="WaveCanvas" Grid.Row="1"
-                        Width="76" Height="16"
-                        Margin="0,0,0,2"
-                        HorizontalAlignment="Center"
-                        Visibility="Collapsed">
-                    <Rectangle x:Name="WaveBar1" Canvas.Left="0"  Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
-                    <Rectangle x:Name="WaveBar2" Canvas.Left="10" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
-                    <Rectangle x:Name="WaveBar3" Canvas.Left="20" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
-                    <Rectangle x:Name="WaveBar4" Canvas.Left="30" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
-                    <Rectangle x:Name="WaveBar5" Canvas.Left="40" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
-                    <Rectangle x:Name="WaveBar6" Canvas.Left="50" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
-                    <Rectangle x:Name="WaveBar7" Canvas.Left="60" Canvas.Top="7" Width="6" Height="2" Fill="{DynamicResource RecordingBrush}" RadiusX="3" RadiusY="3"/>
-                </Canvas>
+                <!-- Audio waveform -->
+                <Grid x:Name="WaveCanvas" Grid.Row="1"
+                      Height="16" Width="80"
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,2"
+                      Visibility="Collapsed">
+                    <Polyline x:Name="WaveLine"
+                              Stroke="{DynamicResource RecordingBrush}"
+                              StrokeThickness="1.5"
+                              StrokeLineJoin="Round"
+                              VerticalAlignment="Top"
+                              HorizontalAlignment="Left"/>
+                </Grid>
 
                 <!-- Status label (optional tooltip area) -->
                 <TextBlock x:Name="StatusText"

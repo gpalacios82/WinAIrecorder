@@ -25,10 +25,11 @@ public partial class MainWindow : Window
     private bool _forceClose;
 
     // Wave visualizer
-    private System.Windows.Shapes.Rectangle[]? _waveBars;
-    private static readonly double[] WavePhases = { 0.0, 1.0, 2.1, 3.14, 4.2, 5.2, 6.28 };
-    private const double WaveMaxH = 14.0;
-    private const double WaveMinH = 2.0;
+    private double _wavePhase = 0.0;
+    private const int WaveSamples = 50;
+    private const double WaveW = 78.0;
+    private const double WaveMidY = 8.0;
+    private const double WaveMaxAmp = 6.5;
 
     // Storyboards
     private Storyboard? _pulseAnimation;
@@ -82,7 +83,11 @@ public partial class MainWindow : Window
         _successFadeAnimation = (Storyboard)Resources["SuccessFade"];
         _warnFlashAnimation = (Storyboard)Resources["WarnFlash"];
 
-        _waveBars = new[] { WaveBar1, WaveBar2, WaveBar3, WaveBar4, WaveBar5, WaveBar6, WaveBar7 };
+        // Pre-populate WaveLine with flat points
+        var flat = new System.Windows.Media.PointCollection(WaveSamples + 1);
+        for (int i = 0; i <= WaveSamples; i++)
+            flat.Add(new System.Windows.Point(WaveW * i / WaveSamples, WaveMidY));
+        WaveLine.Points = flat;
 
         // Subscribe to success animation completion (once)
         if (_successFadeAnimation != null)
@@ -292,16 +297,22 @@ public partial class MainWindow : Window
 
     private void OnAudioLevelChanged(float level)
     {
-        if (_state != OverlayState.Recording || _waveBars == null) return;
+        if (_state != OverlayState.Recording) return;
 
-        double t = Environment.TickCount64 / 180.0;
-        for (int i = 0; i < _waveBars.Length; i++)
+        _wavePhase += 0.38;
+        double amp = WaveMaxAmp * level;
+
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Render, () =>
         {
-            double h = WaveMinH + (WaveMaxH - WaveMinH) * level * (0.5 + 0.5 * Math.Sin(t + WavePhases[i]));
-            h = Math.Max(WaveMinH, Math.Min(WaveMaxH, h));
-            _waveBars[i].Height = h;
-            System.Windows.Controls.Canvas.SetTop(_waveBars[i], (WaveMaxH - h) / 2.0 + 1);
-        }
+            var pts = WaveLine.Points;
+            for (int i = 0; i <= WaveSamples; i++)
+            {
+                double x = WaveW * i / WaveSamples;
+                double y = WaveMidY + amp * Math.Sin(_wavePhase + i * Math.PI * 4.0 / WaveSamples);
+                pts[i] = new System.Windows.Point(x, y);
+            }
+            WaveLine.Points = pts; // reassign to trigger redraw
+        });
     }
 
     private async void OnRecordingCompleted(MemoryStream audioStream)
