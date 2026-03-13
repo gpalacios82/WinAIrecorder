@@ -232,18 +232,29 @@ public partial class MainWindow : Window
             Application.Current?.Dispatcher.BeginInvoke(() => ((App)Application.Current).OpenSettings());
             return;
         }
-        // Capture target window first (before anything changes foreground)
-        _pasteService.CaptureForegroundWindow();
-        // Show overlay if hidden in tray
-        if (!IsVisible) Show();
+
+        // Only capture if a non-overlay window is currently foreground.
+        // If the overlay itself is foreground we keep the previous capture.
+        var myHwnd = new WindowInteropHelper(this).Handle;
+        if (NativeMethods.GetForegroundWindow() != myHwnd)
+            _pasteService.CaptureForegroundWindow();
+
+        // Show overlay without activating it — keeps target app as foreground.
+        // ShowActivated=false tells WPF not to steal focus on Show().
+        if (!IsVisible)
+        {
+            ShowActivated = false;
+            Show();
+            ShowActivated = true;
+        }
+
         ToggleRecording();
     }
 
     private void MicButton_Click(object sender, RoutedEventArgs e)
     {
-        // For button click, the overlay already has focus - capture before showing
-        // Actually for button click we need to capture the PREVIOUS window
-        // This is already handled since overlay may not have taken focus yet
+        // MA_NOACTIVATE keeps target foreground when clicking our button.
+        // Capture only when starting a new recording.
         if (_state == OverlayState.Idle)
             _pasteService.CaptureForegroundWindow();
         ToggleRecording();

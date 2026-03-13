@@ -26,36 +26,22 @@ public class PasteService
         var hwnd = _capturedWindow;
         if (hwnd == IntPtr.Zero) return;
 
-        // Attach input threads first, then restore focus
-        uint targetThread = NativeMethods.GetWindowThreadProcessId(hwnd, out _);
-        uint currentThread = NativeMethods.GetCurrentThreadId();
-        bool attached = false;
-        if (targetThread != currentThread)
-            attached = NativeMethods.AttachThreadInput(currentThread, targetThread, true);
-
+        // With MA_NOACTIVATE and ShowActivated=false, the target app stays
+        // foreground throughout recording. SetForegroundWindow is a safety net
+        // that succeeds trivially when target is already foreground.
         NativeMethods.SetForegroundWindow(hwnd);
-        NativeMethods.SetFocus(hwnd);
+        await Task.Delay(80);
 
-        await Task.Delay(120);
+        if (useClipboard)
+            await PasteViaClipboard(text);
+        else
+            SendUnicodeText(text);
+    }
 
-        try
-        {
-            if (useClipboard)
-            {
-                await PasteViaClipboard(text);
-            }
-            else
-            {
-                SendUnicodeText(text);
-            }
-        }
-        finally
-        {
-            if (attached)
-            {
-                NativeMethods.AttachThreadInput(currentThread, targetThread, false);
-            }
-        }
+    public void RestoreFocus()
+    {
+        if (_capturedWindow != IntPtr.Zero)
+            NativeMethods.SetForegroundWindow(_capturedWindow);
     }
 
     private static async Task PasteViaClipboard(string text)
