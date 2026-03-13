@@ -99,11 +99,20 @@ public partial class App : Application
     public void OpenSettings()
     {
         if (_mainWindow == null) return;
+
+        // Capture the real target window before the dialog steals focus.
+        // After ShowDialog the owner (WS_EX_NOACTIVATE) can't be activated, so
+        // focus would end up in limbo — we restore it explicitly.
+        var previousForeground = NativeMethods.GetForegroundWindow();
+
         var config = new ConfigWindow(SettingsService, _mainWindow)
         {
             Owner = _mainWindow
         };
         config.ShowDialog();
+
+        if (previousForeground != IntPtr.Zero)
+            NativeMethods.SetForegroundWindow(previousForeground);
     }
 
     public void ExitApp()

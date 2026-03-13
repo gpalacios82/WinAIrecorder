@@ -26,19 +26,17 @@ public class PasteService
         var hwnd = _capturedWindow;
         if (hwnd == IntPtr.Zero) return;
 
-        // Restore focus to the original window
-        NativeMethods.SetForegroundWindow(hwnd);
-
-        // Attach input threads to ensure focus
+        // Attach input threads first, then restore focus
         uint targetThread = NativeMethods.GetWindowThreadProcessId(hwnd, out _);
         uint currentThread = NativeMethods.GetCurrentThreadId();
         bool attached = false;
         if (targetThread != currentThread)
-        {
             attached = NativeMethods.AttachThreadInput(currentThread, targetThread, true);
-        }
 
-        await Task.Delay(150);
+        NativeMethods.SetForegroundWindow(hwnd);
+        NativeMethods.SetFocus(hwnd);
+
+        await Task.Delay(120);
 
         try
         {
