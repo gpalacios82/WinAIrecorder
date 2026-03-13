@@ -97,9 +97,13 @@ public partial class MainWindow : Window
         // Register hotkey
         RegisterHotkey();
 
-        // Apply always-on-top setting
-        Topmost = _settingsService.Settings.AlwaysOnTop;
+        // Apply always-on-top setting — use BeginInvoke to avoid AllowsTransparency race
         UpdatePinMenuItem();
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, () =>
+        {
+            Topmost = _settingsService.Settings.AlwaysOnTop;
+            UpdatePinMenuItem();
+        });
     }
 
     private void RegisterHotkey()
@@ -398,11 +402,6 @@ public partial class MainWindow : Window
     {
         if (e.ButtonState == MouseButtonState.Pressed)
             DragMove();
-    }
-
-    private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-    {
-        OverlayContextMenu.IsOpen = true;
     }
 
     // Context menu

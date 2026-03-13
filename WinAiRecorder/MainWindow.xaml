@@ -55,8 +55,7 @@
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 CornerRadius="16"
-                MouseLeftButtonDown="Window_MouseLeftButtonDown"
-                MouseRightButtonUp="Window_MouseRightButtonUp">
+                MouseLeftButtonDown="Window_MouseLeftButtonDown">
 
             <Grid>
                 <Grid.RowDefinitions>
