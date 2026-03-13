@@ -43,6 +43,9 @@ public partial class App : Application
         // If starting minimized, hide immediately after — use Opacity trick to avoid flash.
         _mainWindow = new MainWindow(SettingsService);
         bool startMinimized = e.Args.Contains("--minimized");
+
+        // Always show without activating — overlay must NEVER steal focus.
+        _mainWindow.ShowActivated = false;
         if (startMinimized)
         {
             _mainWindow.Opacity = 0;
@@ -54,6 +57,7 @@ public partial class App : Application
         {
             _mainWindow.Show();
         }
+        _mainWindow.ShowActivated = true;
 
         // Create system tray icon
         InitializeTrayIcon();
@@ -104,7 +108,11 @@ public partial class App : Application
         if (_mainWindow.Visibility == Visibility.Visible && _mainWindow.IsVisible)
             _mainWindow.Hide();
         else
+        {
+            _mainWindow.ShowActivated = false;
             _mainWindow.Show();
+            _mainWindow.ShowActivated = true;
+        }
     }
 
     public void OpenSettings()

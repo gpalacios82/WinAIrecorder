@@ -97,13 +97,9 @@ public partial class MainWindow : Window
         // Register hotkey
         RegisterHotkey();
 
-        // Apply always-on-top setting — use BeginInvoke to avoid AllowsTransparency race
+        // Apply always-on-top setting
+        Topmost = _settingsService.Settings.AlwaysOnTop;
         UpdatePinMenuItem();
-        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, () =>
-        {
-            Topmost = _settingsService.Settings.AlwaysOnTop;
-            UpdatePinMenuItem();
-        });
     }
 
     private void RegisterHotkey()
@@ -233,14 +229,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Only capture if a non-overlay window is currently foreground.
-        // If the overlay itself is foreground we keep the previous capture.
-        var myHwnd = new WindowInteropHelper(this).Handle;
-        if (NativeMethods.GetForegroundWindow() != myHwnd)
-            _pasteService.CaptureForegroundWindow();
+        // Overlay never steals focus (ShowActivated=false everywhere).
+        // Safe to always capture — foreground is always the target app.
+        _pasteService.CaptureForegroundWindow();
 
-        // Show overlay without activating it — keeps target app as foreground.
-        // ShowActivated=false tells WPF not to steal focus on Show().
         if (!IsVisible)
         {
             ShowActivated = false;
