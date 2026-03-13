@@ -229,8 +229,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Overlay never steals focus (ShowActivated=false everywhere).
-        // Safe to always capture — foreground is always the target app.
+        // Capture BEFORE Show() — target app is still foreground here.
         _pasteService.CaptureForegroundWindow();
 
         if (!IsVisible)
@@ -238,6 +237,10 @@ public partial class MainWindow : Window
             ShowActivated = false;
             Show();
             ShowActivated = true;
+            // Show() may still activate the overlay despite ShowActivated=false.
+            // WM_HOTKEY gives us temporary foreground rights right now — use them
+            // to immediately return focus to the target before recording starts.
+            _pasteService.RestoreFocus();
         }
 
         ToggleRecording();
